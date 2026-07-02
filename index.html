@@ -120,10 +120,10 @@
     <h2><img src="https://avatars.githubusercontent.com/u/292855028?v=4" class="crypto-logo" style="width:58px;"> CoinNewList</h2>
     
     <nav>
-        <a href="#" class="nav-link active" data-section="all-crypto">All Crypto</a>
-        <a href="#" class="nav-link" data-section="newlist">NewList</a>
-        <a href="#" class="nav-link" data-section="trending">Trending</a>
-        <a href="#" class="nav-link" data-section="news">News</a>
+        <a href="/" class="nav-link active" data-path="/">All Crypto</a>
+        <a href="/newlist" class="nav-link" data-path="/newlist">NewList</a>
+        <a href="/trending" class="nav-link" data-path="/trending">Trending</a>
+        <a href="/news" class="nav-link" data-path="/news">News</a>
     </nav>
     
     <div id="all-crypto-section" class="section active container">
@@ -210,6 +210,7 @@
         const tableBody = document.getElementById('cryptoTableBody');
         const cryptoTableWrapper = document.getElementById('cryptoTableWrapper');
         const externalRankingContainer = document.getElementById('externalRankingContainer');
+        const externalRankingFrame = document.getElementById('externalRankingFrame');
         const paginationEl = document.getElementById('pagination');
         
         // Pagination constants
@@ -303,25 +304,187 @@
             });
         }
 
-        function getRankingUrlForPage(page) {
-            if (page === 1) return 'https://coinnewlist.github.io/ranking1/';
-            if (page === 2) return 'https://coinnewlist.github.io/ranking2/';
-            return null;
-        }
-
-        function toggleRankingView(showExternal, page = currentPage) {
-            const rankingUrl = getRankingUrlForPage(page);
-            const shouldShowExternal = showExternal && !!rankingUrl;
-            const externalRankingFrame = document.getElementById('externalRankingFrame');
-
+        function toggleRankingView(showExternal) {
             if (cryptoTableWrapper) {
-                cryptoTableWrapper.style.display = shouldShowExternal ? 'none' : 'block';
+                cryptoTableWrapper.style.display = showExternal ? 'none' : 'block';
             }
             if (externalRankingContainer) {
-                externalRankingContainer.style.display = shouldShowExternal ? 'block' : 'none';
+                externalRankingContainer.style.display = showExternal ? 'block' : 'none';
             }
-            if (shouldShowExternal && externalRankingFrame && externalRankingFrame.src !== rankingUrl) {
-                externalRankingFrame.src = rankingUrl;
+        }
+
+        function isExternalRankingPage(page) {
+            return page >= 1 && page <= 90;
+        }
+
+        function updateExternalRankingFrame(page) {
+            if (!externalRankingFrame) return;
+            if (page === 1) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking1/';
+            } else if (page === 2) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking2/';
+            } else if (page === 3) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking3/';
+            } else if (page === 4) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking4/';
+            } else if (page === 5) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking5/';
+            } else if (page === 6) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking6/';
+            } else if (page === 7) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking7/';
+            } else if (page === 8) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking8/';
+            } else if (page === 9) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking9/';
+            } else if (page === 10) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking10/';
+            } else if (page === 11) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking11/';
+            } else if (page === 12) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking12/';
+            } else if (page === 13) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking13/';
+            } else if (page === 14) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking14/';
+            } else if (page === 15) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking15/';
+            } else if (page === 16) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking16/';
+            } else if (page === 17) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking17/';
+            } else if (page === 18) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking18/';
+            } else if (page === 19) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking19/';
+            } else if (page === 20) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking20/';
+            } else if (page === 21) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking21/';
+            } else if (page === 22) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking22/';
+            } else if (page === 23) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking23/';
+            } else if (page === 24) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking24/';
+            } else if (page === 25) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking25/';
+            } else if (page === 26) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking26/';
+            } else if (page === 27) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking27/';
+            } else if (page === 28) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking28/';
+            } else if (page === 29) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking29/';
+            } else if (page === 30) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking30/';
+            } else if (page === 31) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking31/';
+            } else if (page === 32) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking32/';
+            } else if (page === 33) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking33/';
+            } else if (page === 34) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking34/';
+            } else if (page === 35) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking35/';
+            } else if (page === 36) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking36/';
+            } else if (page === 37) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking37/';
+            } else if (page === 38) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking38/';
+            } else if (page === 39) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking39/';
+            } else if (page === 40) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking40/';
+            } else if (page === 41) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking41/';
+            } else if (page === 42) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking42/';
+            } else if (page === 43) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking43/';
+            } else if (page === 44) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking44/';
+            } else if (page === 45) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking45/';
+            } else if (page === 46) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking46/';
+            } else if (page === 47) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking47/';
+            } else if (page === 48) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking48/';
+            } else if (page === 49) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking49/';
+            } else if (page === 50) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking50/';
+            } else if (page === 51) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking51/';
+            } else if (page === 52) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking52/';
+            } else if (page === 53) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking53/';
+            } else if (page === 54) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking54/';
+            } else if (page === 55) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking55/';
+            } else if (page === 56) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking56/';
+            } else if (page === 57) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking57/';
+            } else if (page === 58) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking58/';
+            } else if (page === 59) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking59/';
+            } else if (page === 60) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking60/';
+            } else if (page === 61) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking61/';
+            } else if (page === 62) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking62/';
+            } else if (page === 63) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking63/';
+            } else if (page === 64) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking64/';
+            } else if (page === 65) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking65/';
+            } else if (page === 66) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking66/';
+            } else if (page === 67) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking67/';
+            } else if (page === 68) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking68/';
+            } else if (page === 69) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking69/';
+            } else if (page === 70) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking70/';
+            } else if (page === 71) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking71/';
+            } else if (page === 72) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking72/';
+            } else if (page === 73) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking73/';
+            } else if (page === 74) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking74/';
+            } else if (page === 75) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking75/';
+            } else if (page === 76) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking76/';
+            } else if (page === 77) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking77/';
+            } else if (page === 78) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking78/';
+            } else if (page === 79) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking79/';
+            } else if (page === 88) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking88/';
+            } else if (page === 89) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking89/';
+            } else if (page === 90) {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking90/';
+            } else {
+                externalRankingFrame.src = 'https://coinnewlist.github.io/ranking1/';
             }
         }
 
@@ -415,20 +578,45 @@
         function setPage(page) {
             if (page < 1 || page > TOTAL_PAGES) return;
             if (page === currentPage) return;
+            
             currentPage = page;
-            if (page === 1) {
-                toggleRankingView(true, 1);
+            window.location.hash = `#${page}`;
+            
+            if (isExternalRankingPage(page)) {
+                updateExternalRankingFrame(page);
+                toggleRankingView(true);
                 return;
             }
-            const rankingUrl = getRankingUrlForPage(page);
-            if (rankingUrl) {
-                toggleRankingView(true, page);
-                return;
-            }
-            toggleRankingView(false, page);
+            
+            toggleRankingView(false);
             scheduleTableRender();
             fetchCryptoPage(page);
         }
+
+        // Load page from URL hash
+        function loadPageFromHash() {
+            const hash = window.location.hash.slice(1);
+            const page = parseInt(hash) || 1;
+            
+            if (page >= 1 && page <= TOTAL_PAGES) {
+                currentPage = page;
+                if (isExternalRankingPage(page)) {
+                    updateExternalRankingFrame(page);
+                    toggleRankingView(true);
+                } else {
+                    toggleRankingView(false);
+                    fetchCryptoPage(page);
+                }
+                scheduleTableRender();
+            } else {
+                currentPage = 1;
+                toggleRankingView(true);
+                scheduleTableRender();
+            }
+        }
+
+        // Handle hash changes
+        window.addEventListener('hashchange', loadPageFromHash);
 
         async function fetchCryptoPage(page = currentPage) {
             const fetchId = ++currentMarketFetchId;
@@ -560,24 +748,94 @@
                     fallbackSection.classList.add('active');
                 }
             }
-            const navLink = document.querySelector(`[data-section="${section}"]`);
+            const navLink = document.querySelector(`[data-path="/${section === 'all-crypto' ? '' : section}"]`);
             if (navLink) navLink.classList.add('active');
         }
 
+        function isLocalFile() {
+            return window.location.protocol === 'file:';
+        }
+
+        function getSectionFromPath(path) {
+            const normalized = path.replace(/\\/g, '/').replace(/\/+/g, '/').replace(/\/+$/, '');
+            if (normalized === '' || normalized === '/' || normalized.endsWith('/41.html')) return 'all-crypto';
+            if (normalized.endsWith('/newlist')) return 'newlist';
+            if (normalized.endsWith('/trending')) return 'trending';
+            if (normalized.endsWith('/news')) return 'news';
+            return 'all-crypto';
+        }
+
+        function getSectionFromHash(hash) {
+            const clean = hash.replace(/^#\/?/, '');
+            if (clean === 'newlist') return 'newlist';
+            if (clean === 'trending') return 'trending';
+            if (clean === 'news') return 'news';
+            if (/^\d+$/.test(clean)) return 'all-crypto';
+            return 'all-crypto';
+        }
+
+        function loadRouteFromUrl() {
+            if (isLocalFile()) {
+                const hash = window.location.hash;
+                const section = getSectionFromHash(hash);
+                if (section === 'all-crypto') {
+                    const page = parseInt(hash.replace(/^#\/?/, ''), 10);
+                    if (!isNaN(page) && page >= 1 && page <= TOTAL_PAGES) {
+                        currentPage = page;
+                    } else {
+                        currentPage = 1;
+                    }
+                    setActiveSection('all-crypto');
+                    toggleRankingView(true);
+                    loadPageFromHash();
+                } else {
+                    setActiveSection(section);
+                }
+            } else {
+                const section = getSectionFromPath(window.location.pathname);
+                setActiveSection(section);
+            }
+        }
+
+        function buildUrlForSection(section) {
+            if (isLocalFile()) {
+                if (section === 'all-crypto') return '#1';
+                return `#${section}`;
+            }
+            if (section === 'all-crypto') return '/#1';
+            return `/${section}`;
+        }
+
+        // Handle navigation links
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const section = e.target.getAttribute('data-section');
-                if (section) setActiveSection(section);
+                const path = e.currentTarget.getAttribute('data-path');
+                if (path) {
+                    const section = getSectionFromPath(path);
+                    const url = buildUrlForSection(section);
+                    history.pushState({section: section}, '', url);
+                    if (section === 'all-crypto') {
+                        currentPage = 1;
+                        setActiveSection('all-crypto');
+                        toggleRankingView(true);
+                        loadPageFromHash();
+                    } else {
+                        setActiveSection(section);
+                    }
+                }
             });
+        });
+
+        // Handle back/forward button navigation
+        window.addEventListener('popstate', (e) => {
+            loadRouteFromUrl();
         });
 
         // Start everything when page loads
         window.onload = () => {
             startLiveUpdates();
-            setActiveSection('all-crypto');
-            toggleRankingView(true);
-            currentPage = 1;
+            loadRouteFromUrl();
         };
         
         // Optional: preload image cache for better visual smoothness
