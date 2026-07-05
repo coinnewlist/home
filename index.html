@@ -237,6 +237,20 @@
             text-align: center;
             color: #6b7280;
         }
+        .crypto-name-desktop {
+            display: inline;
+        }
+        .crypto-name-mobile {
+            display: none;
+        }
+        @media (max-width: 768px) {
+            .crypto-name-desktop {
+                display: none;
+            }
+            .crypto-name-mobile {
+                display: inline;
+            }
+        }
     </style>
 </head>
 <body>
@@ -259,6 +273,7 @@
             <table id="cryptoTable">
                 <thead>
                     <tr>
+                        <th>#</th>
                         <th>Name</th>
                         <th>Market Cap</th>
                         <th>Price</th>
@@ -267,7 +282,7 @@
                     </tr>
                 </thead>
                 <tbody id="cryptoTableBody">
-                    <tr><td colspan="5" class="loading-state">Loading top 100 cryptocurrencies...</td></tr>
+                    <tr><td colspan="6" class="loading-state">Loading top 100 cryptocurrencies...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -368,7 +383,7 @@
         function renderTable() {
             if (!tableBody) return;
             if (!currentCryptoData.length) {
-                tableBody.innerHTML = `<tr><td colspan="5" class="loading-state">Loading data...</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="loading-state">Loading data...</td></tr>`;
                 return;
             }
             
@@ -384,6 +399,7 @@
                 const price = crypto.current_price ?? 0;
                 const change1h = crypto.price_change_percentage_1h_in_currency ?? 0;
                 const change = crypto.price_change_percentage_24h ?? 0;
+                const rank = crypto.market_cap_rank ?? (i + 1);
                 
                 const change1hClass = change1h >= 0 ? 'green' : 'red';
                 const change1hText = formatChange(change1h);
@@ -401,9 +417,15 @@
                     selectCrypto(crypto);
                 });
                 
+                // Rank cell
+                const rankCell = document.createElement('td');
+                rankCell.textContent = rank;
+                rankCell.style.fontWeight = '600';
+                rankCell.style.color = '#000';
+                
                 // Name cell with logo
                 const nameCell = document.createElement('td');
-                nameCell.innerHTML = `<img src="${imageUrl}" class="crypto-logo" alt="${name}" onerror="this.src='https://cryptologos.cc/logos/bitcoin-btc-logo.png'"> ${name} (${symbol})`;
+                nameCell.innerHTML = `<img src="${imageUrl}" class="crypto-logo" alt="${name}" onerror="this.src='https://cryptologos.cc/logos/bitcoin-btc-logo.png'"> <span class="crypto-name-desktop">${name} (${symbol})</span><span class="crypto-name-mobile">${symbol}</span>`;
                 
                 // Market Cap cell
                 const marketCell = document.createElement('td');
@@ -421,6 +443,7 @@
                 const changeCell = document.createElement('td');
                 changeCell.innerHTML = `<span class="${changeClass}">${changeText}</span>`;
                 
+                row.appendChild(rankCell);
                 row.appendChild(nameCell);
                 row.appendChild(marketCell);
                 row.appendChild(priceCell);
@@ -727,13 +750,13 @@
                     scheduleTableRender();
                 } else if (currentCryptoData.length === 0) {
                     // Show error only if we have no data at all
-                    tableBody.innerHTML = '<tr><td colspan="5" class="loading-state">⚠️ Failed to load data. Retrying...</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">⚠️ Failed to load data. Retrying...</td></tr>';
                 }
             } catch (error) {
                 if (error.name !== 'AbortError' && fetchId === currentMarketFetchId) {
                     console.error('Market fetch error:', error);
                     if (currentCryptoData.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="5" class="loading-state">⚠️ Network error. Reconnecting...</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">⚠️ Network error. Reconnecting...</td></tr>';
                     }
                 }
             }
