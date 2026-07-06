@@ -257,10 +257,10 @@
     <h2><img src="https://avatars.githubusercontent.com/u/292855028?v=4" class="crypto-logo" style="width:58px;"> CoinNewList</h2>
     
     <nav>
-        <a href="#" class="nav-link active" data-section="all-crypto">All Crypto</a>
-        <a href="#" class="nav-link" data-section="newlist">NewList</a>
-        <a href="#" class="nav-link" data-section="trending">Trending</a>
-        <a href="#" class="nav-link" data-section="news">News</a>
+        <a href="#all-crypto" class="nav-link active" data-section="all-crypto">All Crypto</a>
+        <a href="#newlist" class="nav-link" data-section="newlist">NewList</a>
+        <a href="#trending" class="nav-link" data-section="trending">Trending</a>
+        <a href="#news" class="nav-link" data-section="news">News</a>
     </nav>
     
     <div id="all-crypto-section" class="section active container">
@@ -282,7 +282,7 @@
                     </tr>
                 </thead>
                 <tbody id="cryptoTableBody">
-                    <tr><td colspan="6" class="loading-state">Loading top 100 cryptocurrencies...</td></tr>
+                    <tr><td colspan="6" class="loading-state">Loading 201-300 cryptocurrencies...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -369,15 +369,16 @@
         
         // Ranking constants
         const ITEMS_PER_PAGE = 100;
-        const TOTAL_PAGES = 1;
+        const TOTAL_PAGES = 90;
         
         // Cache for current data (smooth updates)
         let currentCryptoData = [];
         let currentTrendingData = null;
-        let currentPage = 1;
+        let currentPage = 3;
         let renderScheduled = false;
         let trendingRenderScheduled = false;
         let selectedCoinId = null;
+        let ignoreNextHashChange = false;
         
         // ========== RENDER TABLE - BATCH UPDATES FOR SMOOTHNESS ==========
         function renderTable() {
@@ -399,7 +400,8 @@
                 const price = crypto.current_price ?? 0;
                 const change1h = crypto.price_change_percentage_1h_in_currency ?? 0;
                 const change = crypto.price_change_percentage_24h ?? 0;
-                const rank = crypto.market_cap_rank ?? (i + 1);
+                // Compute displayed rank based on current page (so page 2 becomes 101-200)
+                const displayedRank = ((currentPage - 1) * ITEMS_PER_PAGE) + (i + 1);
                 
                 const change1hClass = change1h >= 0 ? 'green' : 'red';
                 const change1hText = formatChange(change1h);
@@ -419,7 +421,7 @@
                 
                 // Rank cell
                 const rankCell = document.createElement('td');
-                rankCell.textContent = rank;
+                rankCell.textContent = displayedRank;
                 rankCell.style.fontWeight = '600';
                 rankCell.style.color = '#000';
                 
@@ -499,15 +501,16 @@
         function updateUrlForCoin(crypto) {
             const slug = (crypto?.id || '').toLowerCase();
             if (!slug) return;
-            const base = window.location.href.split('#')[0].replace(/\?.*$/, '');
-            const newUrl = `${base}${base.endsWith('/') ? '' : '/'}${slug}`;
-            history.replaceState({}, '', newUrl);
+            // Use hash-based coin links so direct URLs work on GitHub Pages
+            ignoreNextHashChange = true;
+            location.hash = `coin/${slug}`;
         }
 
         function clearCoinUrl() {
-            const base = window.location.href.split('#')[0].replace(/\?.*$/, '');
-            const cleanBase = base.replace(/\/$/, '');
-            history.replaceState({}, '', cleanBase);
+            const h = (location.hash || '').replace(/^#/, '');
+            if (h && h.startsWith('coin/')) {
+                location.hash = '';
+            }
         }
 
         async function selectCrypto(crypto) {
@@ -535,6 +538,23 @@
                             <div class="detail-card"><h3>24h Change</h3><p class="value ${((crypto?.price_change_percentage_24h ?? 0) >= 0 ? 'green' : 'red')}">${formatChange(crypto?.price_change_percentage_24h ?? 0)}</p></div>
                         </div>`;
                 }
+            }
+        }
+
+        // Select a coin by id (used for direct links like #coin/bitcoin)
+        async function selectCryptoById(coinId) {
+            if (!coinId) return;
+            selectedCoinId = coinId;
+            hideMainContent();
+            showDetailsLoading();
+            try {
+                const response = await fetch(`https://api.coingecko.com/api/v3/coins/${coinId}?localization=false&tickers=false&market_data=true&community_data=false&developer_data=false&sparkline=false`);
+                if (!response.ok) throw new Error(`Details error: ${response.status}`);
+                const data = await response.json();
+                renderCoinDetails(data, {});
+            } catch (error) {
+                console.error('selectCryptoById error:', error);
+                if (coinDetailsPanel) coinDetailsPanel.innerHTML = '<div class="details-loading">Unable to load coin details.</div>';
             }
         }
 
@@ -864,17 +884,43 @@
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
-                const section = e.target.getAttribute('data-section');
-                if (section) setActiveSection(section);
+                const section = e.currentTarget.getAttribute('data-section');
+                if (section) {
+                    location.hash = section;
+                    setActiveSection(section);
+                }
             });
+        });
+
+        // Update view when hash changes (supports direct links, coin links and back/forward)
+        window.addEventListener('hashchange', () => {
+            if (ignoreNextHashChange) { ignoreNextHashChange = false; return; }
+            const h = (location.hash || '').replace(/^#/, '');
+            if (!h) {
+                setActiveSection('all-crypto');
+                return;
+            }
+            if (h.startsWith('coin/')) {
+                const coinId = h.split('/')[1];
+                if (coinId) selectCryptoById(coinId);
+            } else {
+                setActiveSection(h);
+            }
         });
 
         // Start everything when page loads
         window.onload = () => {
             startLiveUpdates();
-            setActiveSection('all-crypto');
+            const h = (location.hash || '').replace(/^#/, '');
+            if (h && h.startsWith('coin/')) {
+                const coinId = h.split('/')[1];
+                if (coinId) selectCryptoById(coinId);
+            } else {
+                const initialSection = h || 'all-crypto';
+                setActiveSection(initialSection);
+            }
             toggleRankingView(false);
-            currentPage = 1;
+            currentPage = 3;
         };
         
         // Optional: preload image cache for better visual smoothness
