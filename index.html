@@ -189,7 +189,7 @@
         }
         .links-section p {
             line-height: 1.6;
-            color: #374151;
+            color: hsl(217, 19%, 27%);
             margin: 0;
         }
         .link-button {
@@ -911,7 +911,10 @@
         window.onload = () => {
             startLiveUpdates();
             const h = (location.hash || '').replace(/^#/, '');
+            let shouldOpenCoinDetails = false;
+
             if (h && !h.includes('/') && ['all-crypto', 'newlist', 'trending', 'news'].indexOf(h) === -1) {
+                shouldOpenCoinDetails = true;
                 selectCryptoById(h);
             } else if (!h) {
                 // Handle path-based links (e.g. https://user.github.io/repo/bitcoin)
@@ -919,6 +922,7 @@
                 const lastPart = pathParts[pathParts.length - 1] || '';
                 if (lastPart && !lastPart.includes('.') && lastPart.toLowerCase() !== 'index.html') {
                     // Treat lastPart as coin id and open details; convert to hash for consistency
+                    shouldOpenCoinDetails = true;
                     ignoreNextHashChange = true;
                     location.hash = lastPart;
                     selectCryptoById(lastPart);
@@ -930,8 +934,11 @@
                 const initialSection = h || 'all-crypto';
                 setActiveSection(initialSection);
             }
-            toggleRankingView(false);
-            currentPage = 3;
+
+            if (!shouldOpenCoinDetails) {
+                toggleRankingView(false);
+                currentPage = 3;
+            }
         };
         
         // Optional: preload image cache for better visual smoothness
