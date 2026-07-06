@@ -952,12 +952,26 @@
         });
 
         // Start everything when page loads
+        // Detect deep links on load (hash-based or path-based) and open coin details if present
         window.onload = () => {
             startLiveUpdates();
             const h = (location.hash || '').replace(/^#/, '');
             if (h && h.startsWith('coin/')) {
                 const coinId = h.split('/')[1];
                 if (coinId) selectCryptoById(coinId);
+            } else if (!h) {
+                // Handle path-based links (e.g. https://user.github.io/repo/bitcoin)
+                const pathParts = location.pathname.split('/').filter(Boolean);
+                const lastPart = pathParts[pathParts.length - 1] || '';
+                if (lastPart && !lastPart.includes('.') && lastPart.toLowerCase() !== 'index.html') {
+                    // Treat lastPart as coin id and open details; convert to hash for consistency
+                    ignoreNextHashChange = true;
+                    location.hash = `coin/${lastPart}`;
+                    selectCryptoById(lastPart);
+                } else {
+                    const initialSection = 'all-crypto';
+                    setActiveSection(initialSection);
+                }
             } else {
                 const initialSection = h || 'all-crypto';
                 setActiveSection(initialSection);
@@ -975,3 +989,4 @@
     </script>
 </body>
 </html>
+
