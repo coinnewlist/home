@@ -243,18 +243,6 @@
         .crypto-name-mobile {
             display: none;
         }
-        .copy-link-btn {
-            margin-left: 8px;
-            padding: 4px 8px;
-            font-size: 12px;
-            border-radius: 6px;
-            border: 1px solid #e5e7eb;
-            background: #f3f4f6;
-            cursor: pointer;
-        }
-        .copy-link-btn:hover {
-            background: #e5e7eb;
-        }
         @media (max-width: 768px) {
             .crypto-name-desktop {
                 display: none;
@@ -440,38 +428,6 @@
                 // Name cell with logo
                 const nameCell = document.createElement('td');
                 nameCell.innerHTML = `<img src="${imageUrl}" class="crypto-logo" alt="${name}" onerror="this.src='https://cryptologos.cc/logos/bitcoin-btc-logo.png'"> <span class="crypto-name-desktop">${name} (${symbol})</span><span class="crypto-name-mobile">${symbol}</span>`;
-                // Add copy link button
-                const copyBtn = document.createElement('button');
-                copyBtn.className = 'copy-link-btn';
-                copyBtn.type = 'button';
-                copyBtn.title = 'Copy coin link';
-                copyBtn.innerText = 'Copy';
-                copyBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const coinId = crypto.id;
-                    if (!coinId) return;
-                    const base = window.location.href.split('#')[0];
-                    const url = `${base}#coin/${coinId}`;
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(url).catch(() => {
-                            const tmp = document.createElement('input');
-                            document.body.appendChild(tmp);
-                            tmp.value = url;
-                            tmp.select();
-                            document.execCommand('copy');
-                            tmp.remove();
-                        });
-                    } else {
-                        const tmp = document.createElement('input');
-                        document.body.appendChild(tmp);
-                        tmp.value = url;
-                        tmp.select();
-                        document.execCommand('copy');
-                        tmp.remove();
-                    }
-                });
-                nameCell.appendChild(copyBtn);
-                
                 // Market Cap cell
                 const marketCell = document.createElement('td');
                 marketCell.textContent = formatMarketCap(marketCap);
@@ -546,12 +502,12 @@
             if (!slug) return;
             // Use hash-based coin links so direct URLs work on GitHub Pages
             ignoreNextHashChange = true;
-            location.hash = `coin/${slug}`;
+            location.hash = slug;
         }
 
         function clearCoinUrl() {
             const h = (location.hash || '').replace(/^#/, '');
-            if (h && h.startsWith('coin/')) {
+            if (h && !h.includes('/')) {
                 location.hash = '';
             }
         }
@@ -943,9 +899,8 @@
                 setActiveSection('all-crypto');
                 return;
             }
-            if (h.startsWith('coin/')) {
-                const coinId = h.split('/')[1];
-                if (coinId) selectCryptoById(coinId);
+            if (h && !h.includes('/') && ['all-crypto', 'newlist', 'trending', 'news'].indexOf(h) === -1) {
+                selectCryptoById(h);
             } else {
                 setActiveSection(h);
             }
@@ -956,9 +911,8 @@
         window.onload = () => {
             startLiveUpdates();
             const h = (location.hash || '').replace(/^#/, '');
-            if (h && h.startsWith('coin/')) {
-                const coinId = h.split('/')[1];
-                if (coinId) selectCryptoById(coinId);
+            if (h && !h.includes('/') && ['all-crypto', 'newlist', 'trending', 'news'].indexOf(h) === -1) {
+                selectCryptoById(h);
             } else if (!h) {
                 // Handle path-based links (e.g. https://user.github.io/repo/bitcoin)
                 const pathParts = location.pathname.split('/').filter(Boolean);
@@ -966,7 +920,7 @@
                 if (lastPart && !lastPart.includes('.') && lastPart.toLowerCase() !== 'index.html') {
                     // Treat lastPart as coin id and open details; convert to hash for consistency
                     ignoreNextHashChange = true;
-                    location.hash = `coin/${lastPart}`;
+                    location.hash = lastPart;
                     selectCryptoById(lastPart);
                 } else {
                     const initialSection = 'all-crypto';
@@ -989,4 +943,3 @@
     </script>
 </body>
 </html>
-
