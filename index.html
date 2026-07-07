@@ -321,7 +321,7 @@
                     </tr>
                 </thead>
                 <tbody id="cryptoTableBody">
-                    <tr><td colspan="6" class="loading-state">Loading 1-100 cryptocurrencies...</td></tr>
+                    <tr><td colspan="6" class="loading-state">Loading data . . . . .</td></tr>
                 </tbody>
             </table>
         </div>
@@ -351,7 +351,7 @@
     </div>
     
     <script>
-        // ========== RENDERING + PAGINATION FOR 90 PAGES ==========
+        // ========== RENDERING FOR A SINGLE 100-COIN VIEW ==========
         // Fast, smooth updates while preserving original visual theme
 
         // Format market cap with K/M/B/T suffixes (clean & original style)
@@ -409,8 +409,8 @@
         const coinDetailsPanel = document.getElementById('detailsContainer');
         
         // Ranking constants
-        const ITEMS_PER_PAGE = 100;
-        const TOTAL_PAGES = 90;
+        const ITEMS_PER_PAGE = 90;
+        const TOTAL_PAGES = 10;
         
         // Cache for current data (smooth updates)
         let currentCryptoData = [];
@@ -425,7 +425,7 @@
         function renderTable() {
             if (!tableBody) return;
             if (!currentCryptoData.length) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="loading-state">Loading data...</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="loading-state">Loading data . . . . .</td></tr>`;
                 return;
             }
             
@@ -503,6 +503,13 @@
         function renderPagination() {
             if (!paginationContainer) return;
 
+            if (TOTAL_PAGES <= 1) {
+                paginationContainer.innerHTML = '';
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            paginationContainer.style.display = 'flex';
             const totalPages = TOTAL_PAGES;
             const windowSize = 5;
             let startPage = Math.max(1, currentPage - Math.floor(windowSize / 2));
@@ -545,6 +552,8 @@
             const trendingSection = document.getElementById('trendingContainer');
             const tableWrapper = document.getElementById('cryptoTableWrapper');
             const heading = document.querySelector('#all-crypto-section h3');
+            const pagination = document.getElementById('paginationContainer');
+            const rankingContainer = document.getElementById('externalRankingContainer');
             const section = document.getElementById('all-crypto-section');
 
             if (header) header.style.display = 'none';
@@ -552,6 +561,8 @@
             if (trendingSection) trendingSection.style.display = 'none';
             if (tableWrapper) tableWrapper.style.display = 'none';
             if (heading) heading.style.display = 'none';
+            if (pagination) pagination.style.display = 'none';
+            if (rankingContainer) rankingContainer.style.display = 'none';
             if (section) section.style.padding = '0';
         }
 
@@ -561,6 +572,7 @@
             const trendingSection = document.getElementById('trendingContainer');
             const tableWrapper = document.getElementById('cryptoTableWrapper');
             const heading = document.querySelector('#all-crypto-section h3');
+            const pagination = document.getElementById('paginationContainer');
             const section = document.getElementById('all-crypto-section');
 
             if (header) header.style.display = '';
@@ -568,6 +580,7 @@
             if (trendingSection) trendingSection.style.display = '';
             if (tableWrapper) tableWrapper.style.display = '';
             if (heading) heading.style.display = '';
+            if (pagination) pagination.style.display = 'flex';
             if (section) section.style.padding = '';
         }
 
@@ -828,9 +841,6 @@
             if (cryptoTableWrapper) {
                 cryptoTableWrapper.style.display = 'block';
             }
-            if (coinDetailsPanel) {
-                coinDetailsPanel.style.display = 'block';
-            }
             if (externalRankingContainer) {
                 externalRankingContainer.style.display = shouldShowExternal ? 'block' : 'none';
             }
@@ -915,6 +925,14 @@
         let currentTrendingFetchId = 0;
         
         function setPage(page) {
+            if (TOTAL_PAGES <= 1) {
+                currentPage = 1;
+                updateUrlForPage(1);
+                renderPagination();
+                toggleRankingView(false, 1);
+                fetchCryptoPage(1);
+                return;
+            }
             if (page < 1 || page > TOTAL_PAGES) return;
             if (page === currentPage) return;
             currentPage = page;
@@ -929,7 +947,7 @@
             
             // Show loading state immediately
             if (tableBody) {
-                tableBody.innerHTML = `<tr><td colspan="6" class="loading-state">Loading page ${page}...</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="6" class="loading-state">Loading data . . . . .</td></tr>`;
             }
             
             if (trendingContainer) {
@@ -977,13 +995,13 @@
                     scheduleTableRender();
                 } else if (currentCryptoData.length === 0) {
                     // Show error only if we have no data at all
-                    tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading Data . . .</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading data . . . . .</td></tr>';
                 }
             } catch (error) {
                 if (error.name !== 'AbortError' && fetchId === currentMarketFetchId) {
                     console.error('Market fetch error:', error);
                     if (currentCryptoData.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading Data . . .</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading data . . . . .</td></tr>';
                     }
                 }
             }
