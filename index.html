@@ -93,6 +93,40 @@
             vertical-align: middle;
             margin-right: 5px;
         }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 0 10px;
+            flex-wrap: wrap;
+        }
+        .page-btn {
+            border: 1px solid #cfe4ff;
+            background: #fff;
+            color: #1d4ed8;
+            border-radius: 999px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-weight: 600;
+            min-width: 42px;
+        }
+        .page-btn:hover:not(:disabled) {
+            background: #e5f1ff;
+        }
+        .page-btn.active {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+        .page-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        .page-ellipsis {
+            color: #6b7280;
+            padding: 0 2px;
+        }
         @media (max-width: 768px) {
             table {
                 display: block;
@@ -287,31 +321,32 @@
                     </tr>
                 </thead>
                 <tbody id="cryptoTableBody">
-                    <tr><td colspan="6" class="loading-state">Loading 201-300 cryptocurrencies...</td></tr>
+                    <tr><td colspan="6" class="loading-state">Loading 1-100 cryptocurrencies...</td></tr>
                 </tbody>
             </table>
         </div>
+        <div id="paginationContainer" class="pagination" aria-label="Pagination"></div>
         <div id="detailsContainer" class="details-panel" style="display:none;"></div>
         <div id="externalRankingContainer" style="display:none; margin-top:12px;">
-            <iframe id="externalRankingFrame" src="ranking.html" style="width:100%; height:1000px; border:none; border-radius:8px;" onerror="this.outerHTML='<div class=&quot;loading-state&quot;>Ranking page is unavailable. Upload ranking.html to the same folder as this page.</div>'"></iframe>
+            <iframe id="externalRankingFrame" data-src="ranking.html" loading="lazy" style="width:100%; height:1000px; border:none; border-radius:8px;" onerror="this.outerHTML='<div class=&quot;loading-state&quot;>Ranking page is unavailable. Upload ranking.html to the same folder as this page.</div>'"></iframe>
         </div>
     </div>
 
     <div id="newlist-section" class="section container" style="display: none;">
         <h3>📌 CoinNewList NewList</h3>
-        <iframe id="newlistIframe" src="https://coinnewlist.github.io/newlist/" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
+        <iframe id="newlistIframe" data-src="https://coinnewlist.github.io/newlist/" loading="lazy" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
         <div class="refresh-status">🔄 Live NewList from CoinNewList</div>
     </div>
 
     <div id="trending-section" class="section container" style="display: none;">
         <h3>📈 CoinNewList Trending</h3>
-        <iframe id="trendingIframe" src="https://coinnewlist.github.io/trending/" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
+        <iframe id="trendingIframe" data-src="https://coinnewlist.github.io/trending/" loading="lazy" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
         <div class="refresh-status">🔄 Live Trending from CoinNewList</div>
     </div>
 
     <div id="news-section" class="section container" style="display: none;">
         <h3>📰 CoinNewList News</h3>
-        <iframe id="newsIframe" src="https://coinnewlist.github.io/news/" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
+        <iframe id="newsIframe" data-src="https://coinnewlist.github.io/news/" loading="lazy" style="width: 100%; height: 900px; border: none; border-radius: 8px; margin-top: 20px;"></iframe>
         <div class="refresh-status">🔄 Live News from CoinNewList</div>
     </div>
     
@@ -369,6 +404,7 @@
         const trendingContainer = document.getElementById('trendingContainer');
         const tableBody = document.getElementById('cryptoTableBody');
         const cryptoTableWrapper = document.getElementById('cryptoTableWrapper');
+        const paginationContainer = document.getElementById('paginationContainer');
         const externalRankingContainer = document.getElementById('externalRankingContainer');
         const coinDetailsPanel = document.getElementById('detailsContainer');
         
@@ -379,7 +415,7 @@
         // Cache for current data (smooth updates)
         let currentCryptoData = [];
         let currentTrendingData = null;
-        let currentPage = 3;
+        let currentPage = 1;
         let renderScheduled = false;
         let trendingRenderScheduled = false;
         let selectedCoinId = null;
@@ -462,6 +498,39 @@
             // Smooth swap
             tableBody.innerHTML = '';
             tableBody.appendChild(fragment);
+        }
+
+        function renderPagination() {
+            if (!paginationContainer) return;
+
+            const totalPages = TOTAL_PAGES;
+            const windowSize = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(windowSize / 2));
+            let endPage = startPage + windowSize - 1;
+
+            if (endPage > totalPages) {
+                endPage = totalPages;
+                startPage = Math.max(1, endPage - windowSize + 1);
+            }
+
+            const buttons = [];
+            buttons.push(`<button class="page-btn" data-page="${Math.max(1, currentPage - 1)}" ${currentPage === 1 ? 'disabled' : ''}>«</button>`);
+
+            for (let page = startPage; page <= endPage; page++) {
+                buttons.push(`<button class="page-btn ${page === currentPage ? 'active' : ''}" data-page="${page}">${page}</button>`);
+            }
+
+            buttons.push(`<button class="page-btn" data-page="${Math.min(totalPages, currentPage + 1)}" ${currentPage === totalPages ? 'disabled' : ''}>»</button>`);
+            paginationContainer.innerHTML = buttons.join('');
+
+            paginationContainer.querySelectorAll('.page-btn[data-page]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const targetPage = Number(button.getAttribute('data-page'));
+                    if (!Number.isNaN(targetPage) && targetPage !== currentPage) {
+                        setPage(targetPage);
+                    }
+                });
+            });
         }
 
         function showDetailsLoading() {
@@ -849,9 +918,37 @@
             if (page < 1 || page > TOTAL_PAGES) return;
             if (page === currentPage) return;
             currentPage = page;
+            updateUrlForPage(page);
+            renderPagination();
             toggleRankingView(false, page);
+            
+            // Full refresh like browser refresh button - clear all cached data
+            currentCryptoData = [];
+            currentTrendingData = null;
+            selectedCoinId = null;
+            
+            // Show loading state immediately
+            if (tableBody) {
+                tableBody.innerHTML = `<tr><td colspan="6" class="loading-state">Loading page ${page}...</td></tr>`;
+            }
+            
+            if (trendingContainer) {
+                trendingContainer.innerHTML = '<div class="trending-item">Loading trending...</div>';
+            }
+            
             scheduleTableRender();
+            scheduleTrendingRender();
             fetchCryptoPage(page);
+            fetchTrendingCrypto();
+        }
+
+        function updateUrlForPage(page) {
+            if (page === 1) {
+                // Page 1 is the default, don't clutter URL
+                location.hash = 'all-crypto';
+            } else {
+                location.hash = `all-crypto/page/${page}`;
+            }
         }
 
         async function fetchCryptoPage(page = currentPage) {
@@ -860,9 +957,11 @@
                 const controller = new AbortController();
                 const timeoutId = setTimeout(() => controller.abort(), 8000);
                 
+                // Add cache-busting parameter with timestamp
+                const timestamp = new Date().getTime();
                 const response = await fetch(
-                    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${ITEMS_PER_PAGE}&page=${page}&sparkline=false&price_change_percentage=1h,24h`,
-                    { signal: controller.signal }
+                    `https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=${ITEMS_PER_PAGE}&page=${page}&sparkline=false&price_change_percentage=1h,24h&t=${timestamp}`,
+                    { signal: controller.signal, cache: 'no-store' }
                 );
                 clearTimeout(timeoutId);
                 
@@ -874,16 +973,17 @@
                 
                 if (data && Array.isArray(data) && data.length > 0) {
                     currentCryptoData = data;
+                    renderPagination();
                     scheduleTableRender();
                 } else if (currentCryptoData.length === 0) {
                     // Show error only if we have no data at all
-                    tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">⚠️ Failed to load data. Retrying...</td></tr>';
+                    tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading Data . . .</td></tr>';
                 }
             } catch (error) {
                 if (error.name !== 'AbortError' && fetchId === currentMarketFetchId) {
                     console.error('Market fetch error:', error);
                     if (currentCryptoData.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">⚠️ Network error. Reconnecting...</td></tr>';
+                        tableBody.innerHTML = '<tr><td colspan="6" class="loading-state">Loading Data . . .</td></tr>';
                     }
                 }
             }
@@ -999,27 +1099,74 @@
             });
         });
 
-        // Update view when hash changes (supports direct links, coin links and back/forward)
+        // Update view when hash changes (supports direct links, coin links, pagination and back/forward)
         window.addEventListener('hashchange', () => {
             if (ignoreNextHashChange) { ignoreNextHashChange = false; return; }
             const h = (location.hash || '').replace(/^#/, '');
             if (!h) {
                 setActiveSection('all-crypto');
+                currentPage = 1;
+                fetchCryptoPage(1);
+                renderPagination();
+                scheduleTableRender();
                 return;
             }
+            
+            // Handle page-based URLs like "all-crypto/page/2"
+            if (h.includes('/page/')) {
+                const parts = h.split('/');
+                const section = parts[0];
+                const page = parseInt(parts[2], 10);
+                
+                if (section && page && !isNaN(page) && page >= 1 && page <= TOTAL_PAGES) {
+                    setActiveSection(section);
+                    if (page !== currentPage) {
+                        currentPage = page;
+                        renderPagination();
+                        toggleRankingView(false, page);
+                        scheduleTableRender();
+                        fetchCryptoPage(page);
+                    }
+                    return;
+                }
+            }
+            
+            // Handle coin links like "bitcoin"
             if (h && !h.includes('/') && ['all-crypto', 'newlist', 'trending', 'news'].indexOf(h) === -1) {
                 selectCryptoById(h);
             } else {
                 setActiveSection(h);
+                currentPage = 1;
+                fetchCryptoPage(1);
+                renderPagination();
+                scheduleTableRender();
             }
         });
 
-        // Start everything when page loads
-        // Detect deep links on load (hash-based or path-based) and open coin details if present
-        window.onload = () => {
+        // Start everything as soon as DOM is ready (don't wait for images/iframes)
+        // Detect deep links on load (hash-based or path-based) and open coin details or load specific page if present
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPagination();
             startLiveUpdates();
             const h = (location.hash || '').replace(/^#/, '');
             let shouldOpenCoinDetails = false;
+
+            // Handle page-based URLs like "all-crypto/page/2"
+            if (h.includes('/page/')) {
+                const parts = h.split('/');
+                const section = parts[0];
+                const page = parseInt(parts[2], 10);
+                
+                if (section && page && !isNaN(page) && page >= 1 && page <= TOTAL_PAGES) {
+                    setActiveSection(section);
+                    currentPage = page;
+                    renderPagination();
+                    toggleRankingView(false, page);
+                    scheduleTableRender();
+                    fetchCryptoPage(page);
+                    return;
+                }
+            }
 
             if (h && !h.includes('/') && ['all-crypto', 'newlist', 'trending', 'news'].indexOf(h) === -1) {
                 shouldOpenCoinDetails = true;
@@ -1045,9 +1192,26 @@
 
             if (!shouldOpenCoinDetails) {
                 toggleRankingView(false);
-                currentPage = 3;
+                currentPage = 1;
             }
-        };
+        });
+
+        // Lazy-load iframe sources when their section becomes active
+        function ensureIframeSrc(id) {
+            const iframe = document.getElementById(id);
+            if (!iframe) return;
+            const src = iframe.getAttribute('data-src');
+            if (src && iframe.src !== src) iframe.src = src;
+        }
+
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                const section = e.currentTarget.getAttribute('data-section');
+                if (section === 'newlist') ensureIframeSrc('newlistIframe');
+                if (section === 'trending') ensureIframeSrc('trendingIframe');
+                if (section === 'news') ensureIframeSrc('newsIframe');
+            });
+        });
         
         // Optional: preload image cache for better visual smoothness
         const preloadImages = ['https://cryptologos.cc/logos/bitcoin-btc-logo.png'];
